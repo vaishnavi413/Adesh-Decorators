@@ -32,7 +32,7 @@ function InvoiceForm() {
 
     const fetchLatestInvoiceNo = async () => {
   try {
-    const res = await axios.get("http://localhost:5000/api/invoices/latest");
+    const res = await axios.get("https://shri-g-enterprises-invoice-billl.onrender.com/api/invoices/latest");
     const nextNo = res.data.nextInvoiceNo || "0001";
     setInvoice(prev => ({ ...prev, invoiceNo: nextNo }));
   } catch (err) {
@@ -57,7 +57,7 @@ useEffect(() => {
   const fetchNextNumber = async () => {
     try {
       const response = await axios.get(
-        "https://shri-g-enterprises-invoice-billl-backend.onrender.com/api/invoices/latest"
+        "https://shri-g-enterprises-invoice-billl.onrender.com/api/invoices/latest"
       );
       setInvoice((prev) => ({
         ...prev,
@@ -207,8 +207,7 @@ const handleSaveInvoice = async () => {
 
     console.log("Saving invoice: ", invoiceToSave);
 
-    await axios.post("http://localhost:5000/api/invoices/save", invoiceToSave);
-
+    await axios.post("https://shri-g-enterprises-invoice-billl.onrender.com/api/invoices/save")
     alert("✅ Invoice saved successfully!");
 
     // Clear form
