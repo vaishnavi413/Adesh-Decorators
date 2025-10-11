@@ -449,60 +449,70 @@ const downloadPDF = async () => {
             </tr>
           </thead>
           <tbody>
-            {invoice.items.map((item, index) => (
-              <tr key={index}>
-                <td style={{ textAlign: "center" }}>{index + 1}</td>
-                <td>
-  <textarea
-    name="description"
-    value={item.description}
-    onChange={(e) => handleItemChange(index, e)}
-    style={{
-      width: "100%",
-      minHeight: "40px",   // gives space for multiple lines
-      border: "none",
-      outline: "none",
-      resize: "vertical",  // user can drag to expand height
-      fontFamily: "Times New Roman",
-      fontSize: "14px",
-      whiteSpace: "pre-wrap", // preserves line breaks
-      overflowWrap: "break-word",
-    }}
-  />
-</td>
-                <td>
-                  <input
-                    type="text"
-                    name="hsn"
-                    value={item.hsn}
-                    onChange={(e) => handleItemChange(index, e)}
-                    style={{ width: "90%", textAlign: "center", border: "none", outline: "none" }}
-                  />
-                </td>
-                <td>
-                  <input
-                    type="number"
-                    name="qty"
-                    value={item.qty}
-                    onChange={(e) => handleItemChange(index, e)}
-                    style={{ width: "90%", textAlign: "center", border: "none", outline: "none" }}
-                  />
-                </td>
-                <td>
-                  <input
-                    type="number"
-                    name="rate"
-                    value={item.rate}
-                    onChange={(e) => handleItemChange(index, e)}
-                    style={{ width: "90%", textAlign: "right", border: "none", outline: "none" }}
-                  />
-                </td>
-                <td style={{ textAlign: "right", paddingRight: "6px" }}>
-                  {item.amount.toFixed(2)}
-                </td>
-              </tr>
-            ))}
-          </tbody>
+  {invoice.items.map((item, index) => (
+    <tr key={index}>
+      <td style={{ textAlign: "center" }}>{index + 1}</td>
+
+      {/* ✅ Description as a div instead of textarea for PDF */}
+      <td>
+        <div
+          contentEditable
+          suppressContentEditableWarning={true}
+          onInput={(e) =>
+            handleItemChange(index, {
+              target: { name: "description", value: e.currentTarget.textContent },
+            })
+          }
+          style={{
+            width: "100%",
+            minHeight: "40px",
+            fontFamily: "Times New Roman",
+            fontSize: "14px",
+            whiteSpace: "pre-wrap",  // preserves line breaks
+            wordWrap: "break-word",
+            overflowWrap: "break-word",
+            border: "1px solid #ccc", // optional, for editing visibility
+            padding: "2px 4px",
+          }}
+        >
+          {item.description}
+        </div>
+      </td>
+
+      <td>
+        <input
+          type="text"
+          name="hsn"
+          value={item.hsn}
+          onChange={(e) => handleItemChange(index, e)}
+          style={{ width: "90%", textAlign: "center", border: "none", outline: "none" }}
+        />
+      </td>
+      <td>
+        <input
+          type="number"
+          name="qty"
+          value={item.qty}
+          onChange={(e) => handleItemChange(index, e)}
+          style={{ width: "90%", textAlign: "center", border: "none", outline: "none" }}
+        />
+      </td>
+      <td>
+        <input
+          type="number"
+          name="rate"
+          value={item.rate}
+          onChange={(e) => handleItemChange(index, e)}
+          style={{ width: "90%", textAlign: "right", border: "none", outline: "none" }}
+        />
+      </td>
+      <td style={{ textAlign: "right", paddingRight: "6px" }}>
+        {item.amount.toFixed(2)}
+      </td>
+    </tr>
+  ))}
+</tbody>
+
         </table>
       <button className="add-row-btn" onClick={addRow}>+ Add Row</button>
 
