@@ -432,10 +432,8 @@ const formatDateForDisplay = (dateString) => {
     <input
       type="date"
       value={invoice.invoiceDate || ""}
-      onChange={(e) => {
-        setInvoice({ ...invoice, invoiceDate: e.target.value }); // store YYYY-MM-DD
-      }}
-      max="31-03-2026"
+      onChange={(e) => setInvoice({ ...invoice, invoiceDate: e.target.value })}
+      max="2026-03-31"  // <-- Correct format
     />
   </td>
 </tr>
@@ -459,10 +457,8 @@ const formatDateForDisplay = (dateString) => {
     <input
       type="date"
       value={invoice.poDate || ""}
-      onChange={(e) => {
-        setInvoice({ ...invoice, poDate: e.target.value }); // store YYYY-MM-DD
-      }}
-      max="31-03-2026"
+      onChange={(e) => setInvoice({ ...invoice, poDate: e.target.value })}
+      max="2026-03-31"  // <-- Correct format
     />
   </td>
 </tr>
