@@ -491,3 +491,12 @@ min-height: 100px;
   color: #aaa;
   pointer-events: none;
 }
+
+@media print {
+  input[type="date"] {
+    display: none;
+  }
+  .pdf-date {
+    display: block !important;
+  }
+} 

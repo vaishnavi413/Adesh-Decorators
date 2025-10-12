@@ -5,7 +5,7 @@ import { jsPDF } from "jspdf";
 import "./InvoiceForm.css";
 import logo from "../assets/logo.jpeg";
 
-
+// --- Format date to DD/MM/YYYY ---
 
 function InvoiceForm() {
   const invoiceRef = useRef(null);
@@ -284,6 +284,11 @@ const downloadPDF = async () => {
   });
 };
 
+const formatDateForDisplay = (dateString) => {
+  if (!dateString) return "";
+  const [day, month, year] = dateString.split("-");
+  return `${day}-${month}-${year}`;
+};
 
   // --- Add note row ---
   return (
@@ -422,15 +427,15 @@ const downloadPDF = async () => {
                         </td>
                       </tr>
                       <tr>
-  <td><strong>Date:</strong></td>
+  <td><strong>Invoice Date:</strong></td>
   <td>
     <input
       type="date"
-      value={invoice.invoiceDate}
-      onChange={(e) =>
-        setInvoice({ ...invoice, invoiceDate: e.target.value })
-      }
-      max="2026-03-31"  // <-- restrict to 31 March 2026
+      value={invoice.invoiceDate || ""}
+      onChange={(e) => {
+        setInvoice({ ...invoice, invoiceDate: e.target.value }); // store YYYY-MM-DD
+      }}
+      max="31-03-2026"
     />
   </td>
 </tr>
@@ -453,11 +458,11 @@ const downloadPDF = async () => {
   <td>
     <input
       type="date"
-      value={invoice.poDate}
-      onChange={(e) =>
-        setInvoice({ ...invoice, poDate: e.target.value })
-      }
-      max="2026-03-31"  // <-- restrict to 31 March 2026
+      value={invoice.poDate || ""}
+      onChange={(e) => {
+        setInvoice({ ...invoice, poDate: e.target.value }); // store YYYY-MM-DD
+      }}
+      max="31-03-2026"
     />
   </td>
 </tr>
