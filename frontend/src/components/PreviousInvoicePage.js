@@ -23,6 +23,10 @@ function PreviousInvoicePage() {
     navigate(`/invoice/${id}`);
   };
 
+  const handleEdit = (id) => {
+    navigate(`/edit-invoice/${id}`);
+  };
+
   const handleDelete = async (id) => {
     if (window.confirm("Are you sure you want to delete this invoice?")) {
       try {
@@ -68,6 +72,13 @@ function PreviousInvoicePage() {
                     style={{ padding: "8px 15px", background: "#3498db", color: "white", border: "none", borderRadius: "3px", cursor: "pointer" }}
                   >
                     👁️ View
+                  </button>
+                  <button
+                    className="edit-btn"
+                    onClick={() => handleEdit(inv._id)}
+                    style={{ padding: "8px 15px", background: "#f39c12", color: "white", border: "none", borderRadius: "3px", cursor: "pointer" }}
+                  >
+                    ✏️ Edit
                   </button>
                   <button
                     className="delete-btn"

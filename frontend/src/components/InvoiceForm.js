@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import axios from "axios";
 import html2canvas from "html2canvas";
 import { jsPDF } from "jspdf";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, Link, useParams } from "react-router-dom";
 import "./InvoiceForm.css";
 import logo from "../assets/logo.jpeg";
 
@@ -11,6 +11,7 @@ const BACKEND_URL = "https://shri-g-enterprises-professional.onrender.com";
 function InvoiceForm() {
   const invoiceRef = useRef(null);
   const navigate = useNavigate();
+  const { id } = useParams();
 
   // --- Invoice state ---
   const [invoice, setInvoice] = useState({
@@ -26,17 +27,24 @@ function InvoiceForm() {
         hsn: "",
         qty: "",
         rate: "",
+        gstRate: 18,
         amount: 0,
       },
     ],
     notes: ["Thank you for your business!", ""],
   });
 
-  const [gstRate, setGstRate] = useState(18);
-
   useEffect(() => {
-    fetchNextInvoice();
-  }, []);
+    if (id) {
+      axios.get(`${BACKEND_URL}/api/invoices/${id}`)
+        .then(res => {
+          if (res.data) setInvoice(res.data);
+        })
+        .catch(err => console.error("Error fetching invoice for edit:", err));
+    } else {
+      fetchNextInvoice();
+    }
+  }, [id]);
 
   const fetchNextInvoice = async () => {
     try {
@@ -64,14 +72,14 @@ function InvoiceForm() {
       ...invoice,
       items: [
         ...invoice.items,
-        { description: "", hsn: "", qty: "", rate: "", amount: 0 },
+        { description: "", hsn: "", qty: "", rate: "", gstRate: 18, amount: 0 },
       ],
     });
   };
 
   const total = invoice.items.reduce((sum, item) => sum + Number(item.amount || 0), 0);
-  const cgst = total * (gstRate / 2 / 100);
-  const sgst = total * (gstRate / 2 / 100);
+  const cgst = invoice.items.reduce((sum, item) => sum + (Number(item.amount || 0) * (Number(item.gstRate) || 18) / 2 / 100), 0);
+  const sgst = invoice.items.reduce((sum, item) => sum + (Number(item.amount || 0) * (Number(item.gstRate) || 18) / 2 / 100), 0);
   const grandTotal = total + cgst + sgst;
 
   const numberToWords = (num) => {
@@ -98,16 +106,27 @@ function InvoiceForm() {
 
   const handleSaveInvoice = async () => {
     try {
-      const res = await axios.post(`${BACKEND_URL}/api/invoices/save`, {
-        ...invoice,
-        total,
-        cgst,
-        sgst,
-        grandTotal,
-        gstRate
-      });
-      alert("Invoice saved successfully!");
-      navigate(`/invoice/${res.data.invoice._id}`);
+      if (id) {
+        const res = await axios.put(`${BACKEND_URL}/api/invoices/${id}`, {
+          ...invoice,
+          total,
+          cgst,
+          sgst,
+          grandTotal,
+        });
+        alert("Invoice updated successfully!");
+        navigate(`/invoice/${res.data.invoice._id}`);
+      } else {
+        const res = await axios.post(`${BACKEND_URL}/api/invoices/save`, {
+          ...invoice,
+          total,
+          cgst,
+          sgst,
+          grandTotal,
+        });
+        alert("Invoice saved successfully!");
+        navigate(`/invoice/${res.data.invoice._id}`);
+      }
     } catch (err) {
       console.error("Error saving invoice:", err);
       alert("Error saving invoice!");
@@ -160,17 +179,17 @@ function InvoiceForm() {
             View History
           </button>
           <button onClick={downloadPDF} style={{ background: "#2c3e50", color: "white", padding: "8px 20px", borderRadius: "5px", border: "none", fontWeight: "700", cursor: "pointer" }}>
-            Print Invoice
+            Download Invoice
           </button>
         </div>
       </div>
 
       {/* --- Main Invoice Form (Professional Layout) --- */}
-      <div className="amazon-invoice" ref={invoiceRef} style={{ padding: "40px" }}>
+      <div className="amazon-invoice" ref={invoiceRef} style={{ padding: "20px" }}>
         <div className="tax-invoice-label">Tax Invoice</div>
 
-        <div className="header-top" style={{ flexDirection: "column", alignItems: "center", textAlign: "center", marginBottom: "30px" }}>
-          <div className="logo-box" style={{ marginBottom: "15px" }}>
+        <div className="header-top" style={{ flexDirection: "column", alignItems: "center", textAlign: "center", marginBottom: "20px" }}>
+          <div className="logo-box" style={{ marginBottom: "10px" }}>
              <img src={logo} alt="Logo" style={{ width: "80px" }} />
           </div>
           <div className="company-brand">
@@ -184,8 +203,8 @@ function InvoiceForm() {
           <div className="original-recipient" style={{ position: "absolute", top: "40px", right: "40px", fontSize: "9px", color: "#999", textTransform: "uppercase" }}>Original for Recipient</div>
         </div>
 
-        <div className="invoice-boxes" style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "15px", marginBottom: "20px" }}>
-           <div className="info-box" style={{ border: "1px solid #e0e0e0", padding: "10px", borderRadius: "4px" }}>
+        <div className="invoice-boxes" style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "10px", marginBottom: "15px" }}>
+           <div className="info-box" style={{ border: "1px solid #e0e0e0", padding: "8px", borderRadius: "4px" }}>
              <span style={{ fontSize: "11px", color: "#888", fontWeight: "bold" }}>Invoice :</span>
              <div style={{ display: "flex", gap: "5px", marginTop: "5px" }}>
                <input type="text" value={invoice.invoiceNo} onChange={(e) => setInvoice({...invoice, invoiceNo: e.target.value})} style={{ border: "none", borderBottom: "1px solid #eee", fontSize: "13px", fontWeight: "bold", width: "100%" }} />
@@ -204,7 +223,7 @@ function InvoiceForm() {
            </div>
         </div>
 
-        <div className="address-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "20px", marginBottom: "20px" }}>
+        <div className="address-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "15px", marginBottom: "15px" }}>
            <div className="addr-section">
              <h4 style={{ fontSize: "11px", borderBottom: "1px solid #eee", paddingBottom: "3px", color: "#444" }}>Customer Details:</h4>
              <input type="text" placeholder="Full Customer Name" value={invoice.customerName} onChange={(e) => setInvoice({...invoice, customerName: e.target.value})} style={{ width: "100%", border: "none", borderBottom: "1px solid #f9f9f9", marginTop: "5px", fontSize: "13px" }} />
@@ -219,35 +238,47 @@ function InvoiceForm() {
           GSTIN: <input type="text" placeholder="Customer GST" style={{ border: "none", borderBottom: "1px dashed #ccc", outline: "none", width: "200px", marginLeft: "5px", fontSize: "13px", color: "#666" }} />
         </div>
 
-        <table className="prof-table" style={{ width: "100%", borderCollapse: "collapse", marginBottom: "15px" }}>
+        <table className="prof-table" style={{ width: "100%", borderCollapse: "collapse", marginBottom: "10px" }}>
           <thead>
             <tr>
-              <th style={{ background: "#f8f9fa", border: "1px solid #eee", padding: "10px", fontSize: "11px", textAlign: "center", width: "60px" }}>SR. NO.</th>
-              <th style={{ background: "#f8f9fa", border: "1px solid #eee", padding: "10px", fontSize: "11px", textAlign: "left", width: "250px" }}>ITEM DESCRIPTION</th>
-              <th style={{ background: "#f8f9fa", border: "1px solid #eee", padding: "10px", fontSize: "11px", textAlign: "left", width: "80px" }}>RATE/ITEM</th>
-              <th style={{ background: "#f8f9fa", border: "1px solid #eee", padding: "10px", fontSize: "11px", textAlign: "center", width: "50px" }}>QTY</th>
-              <th style={{ background: "#f8f9fa", border: "1px solid #eee", padding: "10px", fontSize: "11px", textAlign: "right", width: "100px" }}>AMOUNT</th>
-              <th className="no-print" style={{ background: "#f8f9fa", border: "1px solid #eee", padding: "10px", fontSize: "11px", textAlign: "center", width: "50px" }}>ACTION</th>
+              <th style={{ background: "#f8f9fa", border: "1px solid #eee", padding: "8px", fontSize: "11px", textAlign: "center", width: "50px" }}>SR. NO.</th>
+              <th style={{ background: "#f8f9fa", border: "1px solid #eee", padding: "8px", fontSize: "11px", textAlign: "left", width: "200px" }}>ITEM DESCRIPTION</th>
+              <th style={{ background: "#f8f9fa", border: "1px solid #eee", padding: "8px", fontSize: "11px", textAlign: "center", width: "60px" }}>HSN</th>
+              <th style={{ background: "#f8f9fa", border: "1px solid #eee", padding: "8px", fontSize: "11px", textAlign: "center", width: "50px" }}>QTY</th>
+              <th style={{ background: "#f8f9fa", border: "1px solid #eee", padding: "8px", fontSize: "11px", textAlign: "left", width: "80px" }}>RATE/ITEM</th>
+              <th style={{ background: "#f8f9fa", border: "1px solid #eee", padding: "8px", fontSize: "11px", textAlign: "center", width: "60px" }}>GST %</th>
+              <th style={{ background: "#f8f9fa", border: "1px solid #eee", padding: "8px", fontSize: "11px", textAlign: "right", width: "100px" }}>AMOUNT</th>
+              <th className="no-print" style={{ background: "#f8f9fa", border: "1px solid #eee", padding: "8px", fontSize: "11px", textAlign: "center", width: "50px" }}>ACTION</th>
             </tr>
           </thead>
           <tbody>
             {invoice.items.map((item, index) => (
               <tr key={index}>
-                <td style={{ border: "1px solid #eee", padding: "10px", textAlign: "center" }}>{index + 1}</td>
-                <td style={{ border: "1px solid #eee", padding: "10px" }}>
+                <td style={{ border: "1px solid #eee", padding: "8px", textAlign: "center" }}>{index + 1}</td>
+                <td style={{ border: "1px solid #eee", padding: "8px" }}>
                   <input type="text" name="description" placeholder="Item Name" value={item.description} onChange={(e) => handleItemChange(index, e)} style={{ width: "100%", border: "none", fontSize: "13px", fontWeight: "bold", outline: "none" }} />
-                  <input type="text" name="hsn" placeholder="HSN: 8517" value={item.hsn} onChange={(e) => handleItemChange(index, e)} style={{ width: "100%", border: "none", fontSize: "10px", color: "#888", outline: "none", marginTop: "2px" }} />
                 </td>
-                <td style={{ border: "1px solid #eee", padding: "10px" }}>
-                  <input type="number" name="rate" value={item.rate} onChange={(e) => handleItemChange(index, e)} style={{ width: "100%", border: "none", fontSize: "13px", outline: "none" }} />
+                <td style={{ border: "1px solid #eee", padding: "8px" }}>
+                  <input type="text" name="hsn" placeholder="HSN" value={item.hsn} onChange={(e) => handleItemChange(index, e)} style={{ width: "100%", border: "none", fontSize: "12px", textAlign: "center", outline: "none" }} />
                 </td>
-                <td style={{ border: "1px solid #eee", padding: "10px" }}>
+                <td style={{ border: "1px solid #eee", padding: "8px" }}>
                   <input type="number" name="qty" value={item.qty} onChange={(e) => handleItemChange(index, e)} style={{ width: "100%", border: "none", fontSize: "13px", textAlign: "center", outline: "none" }} />
                 </td>
-                <td style={{ border: "1px solid #eee", padding: "10px", textAlign: "right", fontSize: "13px", fontWeight: "bold" }}>
-                  {item.amount.toFixed(2)}
+                <td style={{ border: "1px solid #eee", padding: "8px" }}>
+                  <input type="number" name="rate" value={item.rate} onChange={(e) => handleItemChange(index, e)} style={{ width: "100%", border: "none", fontSize: "13px", outline: "none" }} />
                 </td>
-                <td className="no-print" style={{ border: "1px solid #eee", padding: "10px", textAlign: "center" }}>
+                <td style={{ border: "1px solid #eee", padding: "8px" }}>
+                  <select name="gstRate" value={item.gstRate || 18} onChange={(e) => handleItemChange(index, e)} style={{ border: "1px solid #ddd", fontSize: "12px", outline: "none", padding: "2px" }}>
+                    <option value={5}>5%</option>
+                    <option value={12}>12%</option>
+                    <option value={18}>18%</option>
+                    <option value={28}>28%</option>
+                  </select>
+                </td>
+                <td style={{ border: "1px solid #eee", padding: "8px", textAlign: "right", fontSize: "13px", fontWeight: "bold" }}>
+                  {Number(item.amount).toFixed(2)}
+                </td>
+                <td className="no-print" style={{ border: "1px solid #eee", padding: "8px", textAlign: "center" }}>
                    <button onClick={() => removeItem(index)} style={{ background: "#fff", border: "1px solid #ddd", color: "#e74c3c", padding: "2px 6px", borderRadius: "50%", cursor: "pointer" }}>×</button>
                 </td>
               </tr>
@@ -257,20 +288,10 @@ function InvoiceForm() {
 
         <div className="no-print" style={{ textAlign: "left", marginBottom: "20px" }}>
           <button onClick={addRow} style={{ background: "#f39c12", color: "white", padding: "5px 15px", border: "none", borderRadius: "4px", cursor: "pointer", fontSize: "12px", fontWeight: "bold" }}>+ Add Item</button>
-
-          <div style={{ float: "right" }}>
-             <label style={{ fontSize: "12px", marginRight: "10px" }}><b>Select GST Rate: </b></label>
-             <select value={gstRate} onChange={(e) => setGstRate(parseFloat(e.target.value))} style={{ padding: "4px" }}>
-                <option value={5}>5%</option>
-                <option value={12}>12%</option>
-                <option value={18}>18%</option>
-                <option value={28}>28%</option>
-             </select>
-          </div>
           <div style={{ clear: "both" }}></div>
         </div>
 
-        <div className="total-flex" style={{ display: "flex", justifyContent: "space-between", borderTop: "1px solid #000", paddingTop: "15px" }}>
+        <div className="total-flex" style={{ display: "flex", justifyContent: "space-between", borderTop: "1px solid #000", paddingTop: "10px" }}>
           <div className="words-block" style={{ width: "60%" }}>
              <div style={{ color: "#888", fontSize: "11px", marginBottom: "4px" }}>Total Amount (in words):</div>
              <div style={{ fontWeight: "bold", fontSize: "13px" }}>{numberToWords(grandTotal)}</div>
@@ -281,7 +302,7 @@ function InvoiceForm() {
                <span style={{ fontWeight: "bold" }}>₹{total.toFixed(2)}</span>
              </div>
              <div style={{ display: "flex", justifyContent: "space-between", fontSize: "13px", marginBottom: "5px" }}>
-               <span>{gstRate}% GST</span>
+               <span>Total GST</span>
                <span style={{ fontWeight: "bold" }}>₹{(cgst + sgst).toFixed(2)}</span>
              </div>
              <div style={{ display: "flex", justifyContent: "space-between", fontSize: "18px", fontWeight: "800", borderTop: "2px solid #000", marginTop: "10px", paddingTop: "10px" }}>
@@ -291,7 +312,7 @@ function InvoiceForm() {
           </div>
         </div>
 
-        <div className="footer-grid" style={{ display: "flex", justifyContent: "space-between", marginTop: "40px" }}>
+        <div className="footer-grid" style={{ display: "flex", justifyContent: "space-between", marginTop: "20px" }}>
            <div className="bank-info-box" style={{ width: "40%", fontSize: "11px", color: "#555" }}>
              <div style={{ fontWeight: "bold", color: "#000", marginBottom: "5px" }}>BANK DETAILS:</div>
              <b>Bank:</b> HDFC BANK<br />
@@ -302,13 +323,13 @@ function InvoiceForm() {
            
            <div className="sig-box" style={{ width: "35%", textAlign: "right" }}>
               <div style={{ fontWeight: "bold", fontSize: "13px" }}>For SHRI G ENTERPRISES</div>
-              <div style={{ marginTop: "40px", borderTop: "1px solid #000", display: "inline-block", minWidth: "150px", textAlign: "center", paddingTop: "5px", fontSize: "12px" }}>
+              <div style={{ marginTop: "25px", borderTop: "1px solid #000", display: "inline-block", minWidth: "150px", textAlign: "center", paddingTop: "5px", fontSize: "12px" }}>
                 Authorized Signatory
               </div>
            </div>
         </div>
 
-        <div className="terms" style={{ marginTop: "30px", fontSize: "10px", color: "#777" }}>
+        <div className="terms" style={{ marginTop: "20px", fontSize: "10px", color: "#777" }}>
           <b>Notes:</b> Thank you for your Business!<br /><br />
           <b>Terms and Conditions:</b>
           <ul style={{ margin: "5px 0 0 15px", padding: 0 }}>

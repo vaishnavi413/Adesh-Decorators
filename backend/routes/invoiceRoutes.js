@@ -40,6 +40,7 @@ router.post("/save", async (req, res) => {
       hsn: item.hsn || "",
       qty: Number(item.qty) || 0,
       rate: Number(item.rate) || 0,
+      gstRate: Number(item.gstRate) || 18,
       amount:
         Number(item.amount) ||
         (Number(item.qty) || 0) * (Number(item.rate) || 0),
@@ -71,6 +72,40 @@ router.post("/save", async (req, res) => {
   } catch (err) {
     console.error("❌ Error saving invoice:", err.message);
     res.status(500).json({ error: "Failed to save invoice" });
+  }
+});
+
+// --- Update an invoice ---
+router.put("/:id", async (req, res) => {
+  try {
+    const invoiceData = req.body;
+
+    invoiceData.items = (invoiceData.items || []).map((item) => ({
+      description: item.description || "",
+      hsn: item.hsn || "",
+      qty: Number(item.qty) || 0,
+      rate: Number(item.rate) || 0,
+      gstRate: Number(item.gstRate) || 18,
+      amount:
+        Number(item.amount) ||
+        (Number(item.qty) || 0) * (Number(item.rate) || 0),
+    }));
+
+    invoiceData.total = Number(invoiceData.total) || 0;
+    invoiceData.cgst = Number(invoiceData.cgst) || 0;
+    invoiceData.sgst = Number(invoiceData.sgst) || 0;
+    invoiceData.grandTotal = Number(invoiceData.grandTotal) || 0;
+
+    const updatedInvoice = await Invoice.findByIdAndUpdate(req.params.id, invoiceData, { new: true });
+    if (!updatedInvoice) return res.status(404).json({ message: "Invoice not found" });
+    
+    res.json({
+      message: "Invoice updated successfully",
+      invoice: updatedInvoice,
+    });
+  } catch (err) {
+    console.error("❌ Error updating invoice:", err);
+    res.status(500).json({ message: "Error updating invoice" });
   }
 });
 

@@ -9,6 +9,7 @@ function App() {
     <Router>
       <Routes>
         <Route path="/" element={<InvoiceForm />} />
+        <Route path="/edit-invoice/:id" element={<InvoiceForm />} />
         <Route path="/invoice/:id" element={<InvoiceView />} />
         <Route path="/previous-invoices/all" element={<PreviousInvoicePage />} />
       </Routes>
