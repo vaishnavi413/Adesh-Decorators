@@ -46,14 +46,14 @@ const CreateInvoice = () => {
           <img src="https://via.placeholder.com/60x60.png?text=LOGO" alt="Logo" />
         </div>
         <h2>TAX INVOICE</h2>
-        <h1 className="header-title">SHRI G ENTERPRISES</h1>
+        <h1 className="header-title">ADESH DECORATORS</h1>
         <div className="subtext">Welding & Safety Equipment’s</div>
         <div className="address">
-          S. No.371, Flat No.20, Unity Park, Somwar Peth, Narpagtiri Chowk,<br />
-          Above HDFC Bank, Pune 411011. | Ph: +91 9850111166 |
-          Email: <u>shrignterprises25@gmail.com</u>
+          763, Bhawani Peth, Agarwal Colony, Pune 1.<br />
+          Ph: 9822409636 / 9422081172
         </div>
-        <div className="gst">GST No.: 27AJIPG2516N1ZZ</div>
+        <div className="gst">GST No.: 27AJAPD4667R1ZP</div>
+        <div className="pan">PAN No.: AJAPD4667R</div>
       </div>
 
       <table className="info-table" style={{ marginTop: "12px" }}>

@@ -28,7 +28,11 @@ const MONGO_URI = process.env.MONGO_URI || "mongodb://127.0.0.1:27017/invoiceDB"
 
 mongoose
   .connect(MONGO_URI)
-  .then(() => console.log("✅ MongoDB Connected Successfully"))
+  .then(() => {
+    console.log("✅ MongoDB Connected Successfully");
+    console.log("📂 Database Name:", mongoose.connection.name);
+    console.log("🔗 Connection URI (partial):", MONGO_URI.split('@')[1] || MONGO_URI);
+  })
   .catch((err) => console.error("❌ MongoDB Connection Error:", err));
 
 // -------------------------------
@@ -38,25 +42,6 @@ mongoose
 // Default route
 app.get("/", (req, res) => {
   res.send("Server is running successfully ✅");
-});
-
-// 🆕 EXPLICIT DELETE ROUTE FIX (Moved BEFORE Router)
-app.delete("/api/invoices/:id", async (req, res) => {
-  const { id } = req.params;
-  console.log(`🗑️ DELETE REQUEST RECEIVED FOR: ${id}`);
-  
-  try {
-    const deleted = await mongoose.model("Invoice").findByIdAndDelete(id);
-    if (!deleted) {
-      console.log(`❌ NOT FOUND: ${id}`);
-      return res.status(404).json({ message: "Invoice not found in Database" });
-    }
-    console.log(`✅ DELETED: ${deleted.invoiceNo}`);
-    res.status(200).json({ message: "Delete Success" });
-  } catch (err) {
-    console.error("❌ DELETE ERROR:", err);
-    res.status(500).json({ message: "Server Error during delete" });
-  }
 });
 
 // Invoice routes

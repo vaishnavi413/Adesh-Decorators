@@ -14,7 +14,7 @@ export default function InvoiceView() {
   useEffect(() => {
     const load = async () => {
       try {
-        const res = await axios.get(`https://shri-g-enterprises-professional.onrender.com/api/invoices/${id}`);
+        const res = await axios.get(`http://localhost:5000/api/invoices/${id}`);
         setInv(res.data);
       } catch (err) { console.error(err); }
     };
@@ -73,11 +73,12 @@ export default function InvoiceView() {
              <img src={logo} alt="Logo" style={{ width: "100px", height: "auto" }} />
           </div>
           <div className="company-brand">
-            <h1>SHRI G ENTERPRISES</h1>
+            <h1>ADESH DECORATORS</h1>
             <div className="details">
-              <b>GSTIN: 27AJIPG2516N1ZZ</b><br />
-              S.No.371, Flat No.20, Unity Park, Somwar Peth, Narpagtiri Chowk, Pune - 411011.<br />
-              <b>Mobile:</b> 9850111166 | <b>Email:</b> shrignterprises25@gmail.com
+              <b>GSTIN: 27AJAPD4667R1ZP</b> | <b>PAN NO: AJAPD4667R</b><br />
+              <b>State:</b> Maharashtra | <b>State Code:</b> 27<br />
+              763, Bhawani Peth, Agarwal Colony, Pune 1.<br />
+              <b>Mobile:</b> 9822409636 / 9422081172
             </div>
           </div>
           <div className="original-recipient" style={{ position: "absolute", top: "50px", right: "50px" }}>Original for Recipient</div>
@@ -109,7 +110,10 @@ export default function InvoiceView() {
            </div>
         </div>
 
-        <div className="gst-line">GSTIN: <span style={{fontWeight: 400, color: "#666"}}>Customer GST Not Provided</span></div>
+        <div className="gst-line" style={{ display: 'flex', gap: '20px' }}>
+            <div>GSTIN: <span style={{fontWeight: 400, color: "#666"}}>{inv.gstNo || "Not Provided"}</span></div>
+            <div>PAN NO: <span style={{fontWeight: 400, color: "#666"}}>{inv.panNo || "Not Provided"}</span></div>
+        </div>
 
         <table className="prof-table">
           <thead>
@@ -168,14 +172,14 @@ export default function InvoiceView() {
         <div className="footer-grid">
            <div className="bank-info-box">
              <div style={{fontWeight: 700, color: "#000", marginBottom: "5px"}}>BANK DETAILS:</div>
-             <b>Bank:</b> HDFC BANK<br />
-             <b>A/C :</b> 50200095196440 (Current)<br />
-             <b>IFSC:</b> HDFC0005383<br />
-             <b>Branch:</b> SOMWAR PETH
+             <b>Bank Name:</b> Bank of Maharashtra<br />
+             <b>Account No.:</b> 20056403835<br />
+             <b>IFSC Code:</b> MAHB0000076<br />
+             <b>Branch:</b> Camp
            </div>
            
            <div className="sig-box">
-              <div style={{fontWeight: 700}}>For SHRI G ENTERPRISES</div>
+              <div style={{fontWeight: 700}}>For ADESH DECORATORS</div>
               <div className="sig-line">Authorized Signatory</div>
            </div>
         </div>

@@ -6,13 +6,12 @@ const HomePage = () => {
 
   return (
     <div className="page-container">
-      <h1 className="company-name">SHRI G ENTERPRISES</h1>
+      <h1 className="company-name">ADESH DECORATORS</h1>
       <p className="company-info">
-        Welding & Safety Equipment’s<br />
-        S. No.371, Flat No.20, Unity Park, Somwar Peth, Narpatsingh Chowk,<br />
-        Above HDFC Bank, Pune 411011<br />
-        Email : shrigenterprises25@gmail.com<br />
-        <b>GST No : 27AJIPG2516N1ZZ</b>
+        763, Bhawani Peth, Agarwal Colony, Pune 1.<br />
+        <b>Mobile:</b> 9822409636 / 9422081172<br />
+        <b>GST No : 27AJAPD4667R1ZP</b><br />
+        <b>PAN No : AJAPD4667R</b>
       </p>
       <button onClick={() => navigate("/invoice")}>Create New Invoice</button>
       <button onClick={() => navigate("/view-bills")}>View Previous Bills</button>

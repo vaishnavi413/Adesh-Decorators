@@ -10,7 +10,7 @@ function PreviousInvoicePage() {
   useEffect(() => {
     const fetchInvoices = async () => {
       try {
-        const res = await axios.get("https://shri-g-enterprises-professional.onrender.com/api/invoices"); 
+        const res = await axios.get("http://localhost:5000/api/invoices"); 
         setInvoices(res.data);
       } catch (err) {
         console.error("Error fetching invoices:", err);
@@ -30,12 +30,18 @@ function PreviousInvoicePage() {
   const handleDelete = async (id) => {
     if (window.confirm("Are you sure you want to delete this invoice?")) {
       try {
-        await axios.delete(`https://shri-g-enterprises-professional.onrender.com/api/invoices/${id}`);
+        await axios.delete(`http://localhost:5000/api/invoices/${id}`);
         setInvoices(invoices.filter((inv) => inv._id !== id));
         alert("Invoice deleted successfully");
       } catch (err) {
-        console.error("Delete Error:", err);
-        alert("Failed to delete invoice.");
+        if (err.response && err.response.status === 404) {
+          // If already gone from server, just remove from UI
+          setInvoices(invoices.filter((inv) => inv._id !== id));
+          alert("Invoice already removed from history.");
+        } else {
+          console.error("Delete Error:", err);
+          alert("Failed to delete invoice.");
+        }
       }
     }
   };

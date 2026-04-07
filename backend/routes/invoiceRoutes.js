@@ -1,5 +1,6 @@
 import express from "express";
 import Invoice from "../models/Invoice.js";
+import mongoose from "mongoose";
 
 const router = express.Router();
 
@@ -7,9 +8,12 @@ const router = express.Router();
 router.get("/next-number", async (req, res) => {
   try {
     const lastInvoice = await Invoice.findOne().sort({ createdAt: -1 });
-    const nextNumber = lastInvoice
-      ? String(parseInt(lastInvoice.invoiceNo) + 1)
-      : "1";
+    let nextNumber = "1";
+    
+    if (lastInvoice) {
+      const lastNo = parseInt(lastInvoice.invoiceNo);
+      nextNumber = String(lastNo + 1);
+    }
 
     res.json({ nextInvoiceNo: nextNumber });
   } catch (err) {
@@ -54,9 +58,11 @@ router.post("/save", async (req, res) => {
     // *** OLD SYSTEM AUTO INVOICE NO ***
     const lastInvoice = await Invoice.findOne().sort({ createdAt: -1 });
 
-    const nextInvoiceNo = lastInvoice
-      ? String(parseInt(lastInvoice.invoiceNo) + 1)
-      : "1";
+    let nextInvoiceNo = "1";
+    if (lastInvoice) {
+      const lastNo = parseInt(lastInvoice.invoiceNo);
+      nextInvoiceNo = String(lastNo + 1);
+    }
 
     invoiceData.invoiceNo = nextInvoiceNo;
 
@@ -125,11 +131,21 @@ router.get("/:id", async (req, res) => {
 // --- Delete an invoice ---
 router.delete("/:id", async (req, res) => {
   try {
-    await Invoice.findByIdAndDelete(req.params.id);
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ message: "Invalid Invoice ID format" });
+    }
+    const deleted = await Invoice.findByIdAndDelete(req.params.id);
+    if (!deleted) {
+      return res.status(404).json({ message: "Invoice not found or already deleted" });
+    }
     res.json({ message: "Invoice deleted successfully" });
   } catch (err) {
-    console.error("❌ Delete Error:", err);
-    res.status(500).json({ message: "Error deleting invoice" });
+    console.error("❌ DELETE ERROR DETAILS:", {
+      message: err.message,
+      stack: err.stack,
+      id: req.params.id
+    });
+    res.status(500).json({ message: "Error deleting invoice", error: err.message });
   }
 });
 

@@ -35,7 +35,7 @@ function ServicePage() {
     <div className="form-container">
         <h4 class="center-text">Tax Invoice</h4>
 
-        <h1>Shri G Enterprises</h1>
+        <h1>Adesh Decorators</h1>
       <h2>Create Invoice #{invoiceNumber}</h2>
       <form onSubmit={handleSubmit}>
         <input

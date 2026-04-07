@@ -25,8 +25,10 @@ const invoiceSchema = new mongoose.Schema(
     sgst: { type: Number, default: 0 },
     grandTotal: { type: Number, default: 0 },
     notes: { type: [String], default: [] },
+    panNo: { type: String, default: "" },
+    gstNo: { type: String, default: "" },
   },
   { timestamps: true }
 );
 
-export default mongoose.model("Invoice", invoiceSchema);
+export default mongoose.model("Adesh_Decorator", invoiceSchema, "Adesh_Decorators");
