@@ -138,12 +138,32 @@ function InvoiceForm() {
     html2canvas(invoiceRef.current, {
       scale: 3,
       useCORS: true,
-      ignoreElements: (el) => el.classList.contains("no-print")
+      ignoreElements: (el) => el.classList.contains("no-print"),
+      onclone: (doc) => {
+        const textareas = doc.querySelectorAll("textarea");
+        textareas.forEach(ta => {
+          const div = doc.createElement("div");
+          div.style.cssText = ta.style.cssText;
+          div.style.width = ta.style.width || "100%";
+          div.style.fontSize = ta.style.fontSize || "12px";
+          div.style.fontFamily = ta.style.fontFamily || "inherit";
+          div.style.marginTop = ta.style.marginTop || "0";
+          div.style.fontWeight = ta.style.fontWeight || "normal";
+          div.style.minHeight = ta.style.minHeight;
+          div.style.whiteSpace = "pre-wrap";
+          div.style.wordWrap = "break-word";
+          div.style.height = "auto";
+          div.style.overflow = "visible";
+          div.innerText = ta.value;
+          ta.parentNode.replaceChild(div, ta);
+        });
+      }
     }).then((canvas) => {
       const imgData = canvas.toDataURL("image/png");
-      const pdf = new jsPDF("p", "pt", "a4");
       const imgWidth = 595;
       const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      // Auto-adjusting PDF size depending on content size!
+      const pdf = new jsPDF("p", "pt", [imgWidth, imgHeight]);
       pdf.addImage(imgData, "PNG", 0, 0, imgWidth, imgHeight);
       pdf.save(`Invoice_${invoice.invoiceNo}.pdf`);
     });
@@ -185,16 +205,26 @@ function InvoiceForm() {
       </div>
 
       {/* --- Main Invoice Form (Professional Layout) --- */}
-      <div className="amazon-invoice" ref={invoiceRef} style={{ padding: "20px" }}>
+      <div className="amazon-invoice" ref={invoiceRef} style={{ 
+        padding: "20px 30px", 
+        width: "794px", 
+        minHeight: "1123px", 
+        margin: "0 auto", 
+        background: "white", 
+        boxSizing: "border-box", 
+        display: "flex", 
+        flexDirection: "column",
+        boxShadow: "0 0 10px rgba(0,0,0,0.1)"
+      }}>
         <div className="tax-invoice-label">Tax Invoice</div>
 
-        <div className="header-top" style={{ flexDirection: "column", alignItems: "center", textAlign: "center", marginBottom: "20px" }}>
-          <div className="logo-box" style={{ marginBottom: "10px" }}>
-             <img src={logo} alt="Logo" style={{ width: "80px" }} />
+        <div className="header-top" style={{ flexDirection: "column", alignItems: "center", textAlign: "center", marginBottom: "5px" }}>
+          <div className="logo-box" style={{ marginBottom: "2px" }}>
+             <img src={logo} alt="Logo" style={{ height: "45px" }} />
           </div>
           <div className="company-brand">
-            <h1>SHRI G ENTERPRISES</h1>
-            <div className="details" style={{ fontSize: "11px", color: "#666", lineHeight: "1.5" }}>
+            <h1 style={{ margin: "2px 0", fontSize: "22px" }}>SHRI G ENTERPRISES</h1>
+            <div className="details" style={{ fontSize: "10px", color: "#666", lineHeight: "1.2" }}>
               <b>GSTIN: 27AJIPG2516N1ZZ</b><br />
               S.No.371, Flat No.20, Unity Park, Somwar Peth, Narpagtiri Chowk, Pune - 411011.<br />
               <b>Mobile:</b> 9850111166 | <b>Email:</b> shrignterprises25@gmail.com
@@ -203,82 +233,82 @@ function InvoiceForm() {
           <div className="original-recipient" style={{ position: "absolute", top: "40px", right: "40px", fontSize: "9px", color: "#999", textTransform: "uppercase" }}>Original for Recipient</div>
         </div>
 
-        <div className="invoice-boxes" style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "10px", marginBottom: "15px" }}>
-           <div className="info-box" style={{ border: "1px solid #e0e0e0", padding: "8px", borderRadius: "4px" }}>
+        <div className="invoice-boxes" style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "10px", marginBottom: "5px" }}>
+           <div className="info-box" style={{ border: "1px solid #e0e0e0", padding: "5px", borderRadius: "4px" }}>
              <span style={{ fontSize: "11px", color: "#888", fontWeight: "bold" }}>Invoice :</span>
-             <div style={{ display: "flex", gap: "5px", marginTop: "5px" }}>
+             <div style={{ display: "flex", gap: "5px", marginTop: "2px" }}>
                <input type="text" value={invoice.invoiceNo} onChange={(e) => setInvoice({...invoice, invoiceNo: e.target.value})} style={{ border: "none", borderBottom: "1px solid #eee", fontSize: "13px", fontWeight: "bold", width: "100%" }} />
              </div>
            </div>
-           <div className="info-box" style={{ border: "1px solid #e0e0e0", padding: "10px", borderRadius: "4px" }}>
+           <div className="info-box" style={{ border: "1px solid #e0e0e0", padding: "5px", borderRadius: "4px" }}>
              <span style={{ fontSize: "11px", color: "#888", fontWeight: "bold" }}>Invoice Date:</span>
-             <input type="date" value={invoice.invoiceDate} min="2026-04-01" max="2027-03-31" onChange={(e) => setInvoice({...invoice, invoiceDate: e.target.value})} style={{ border: "none", display: "block", marginTop: "5px", fontSize: "13px", fontWeight: "bold", width: "100%" }} />
+             <input type="date" value={invoice.invoiceDate} max="2027-03-31" onChange={(e) => setInvoice({...invoice, invoiceDate: e.target.value})} style={{ border: "none", display: "block", marginTop: "2px", fontSize: "13px", fontWeight: "bold", width: "100%" }} />
            </div>
-           <div className="info-box" style={{ border: "1px solid #e0e0e0", padding: "10px", borderRadius: "4px" }}>
+           <div className="info-box" style={{ border: "1px solid #e0e0e0", padding: "5px", borderRadius: "4px" }}>
              <span style={{ fontSize: "11px", color: "#888", fontWeight: "bold" }}>P.O. No & Date:</span>
-             <div style={{ display: "flex", gap: "2px", marginTop: "5px" }}>
+             <div style={{ display: "flex", gap: "2px", marginTop: "2px" }}>
                <input type="text" placeholder="P.O. No" value={invoice.poNo} onChange={(e) => setInvoice({...invoice, poNo: e.target.value})} style={{ border: "none", borderBottom: "1px solid #eee", fontSize: "12px", width: "60px" }} />
-               <input type="date" value={invoice.poDate} min="2026-04-01" max="2027-03-31" onChange={(e) => setInvoice({...invoice, poDate: e.target.value})} style={{ border: "none", fontSize: "12px", width: "100px" }} />
+               <input type="date" value={invoice.poDate} max="2027-03-31" onChange={(e) => setInvoice({...invoice, poDate: e.target.value})} style={{ border: "none", fontSize: "12px", width: "100px" }} />
              </div>
            </div>
         </div>
 
-        <div className="address-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "15px", marginBottom: "15px" }}>
+        <div className="address-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px", marginBottom: "5px" }}>
            <div className="addr-section">
-             <h4 style={{ fontSize: "11px", borderBottom: "1px solid #eee", paddingBottom: "3px", color: "#444" }}>Customer Details:</h4>
-             <input type="text" placeholder="Full Customer Name" value={invoice.customerName} onChange={(e) => setInvoice({...invoice, customerName: e.target.value})} style={{ width: "100%", border: "none", borderBottom: "1px solid #f9f9f9", marginTop: "5px", fontSize: "13px" }} />
+             <h4 style={{ fontSize: "11px", borderBottom: "1px solid #eee", paddingBottom: "2px", color: "#444", margin: "0" }}>Customer Details:</h4>
+             <input type="text" placeholder="Full Customer Name" value={invoice.customerName} onChange={(e) => setInvoice({...invoice, customerName: e.target.value})} style={{ width: "100%", border: "none", borderBottom: "1px solid #f9f9f9", marginTop: "2px", fontSize: "13px" }} />
            </div>
            <div className="addr-section">
-             <h4 style={{ fontSize: "11px", borderBottom: "1px solid #eee", paddingBottom: "3px", color: "#444" }}>Billing Address:</h4>
-             <textarea placeholder="Complete Billing Address" value={invoice.address} onChange={(e) => setInvoice({...invoice, address: e.target.value})} style={{ width: "100%", border: "none", marginTop: "5px", fontSize: "12px", height: "40px", resize: "none" }} />
+             <h4 style={{ fontSize: "11px", borderBottom: "1px solid #eee", paddingBottom: "2px", color: "#444", margin: "0" }}>Billing Address:</h4>
+             <textarea placeholder="Complete Billing Address" value={invoice.address} onChange={(e) => setInvoice({...invoice, address: e.target.value})} rows="2" style={{ width: "100%", border: "none", marginTop: "2px", fontSize: "12px", resize: "vertical", fontFamily: "inherit", minHeight: "40px" }} />
            </div>
         </div>
 
-        <div className="gst-line" style={{ fontSize: "13px", fontWeight: "bold", marginBottom: "15px" }}>
-          GSTIN: <input type="text" placeholder="Customer GST" style={{ border: "none", borderBottom: "1px dashed #ccc", outline: "none", width: "200px", marginLeft: "5px", fontSize: "13px", color: "#666" }} />
+        <div className="gst-line" style={{ fontSize: "12px", fontWeight: "bold", marginBottom: "5px" }}>
+          GSTIN: <input type="text" placeholder="Customer GST" style={{ border: "none", borderBottom: "1px dashed #ccc", outline: "none", width: "200px", marginLeft: "5px", fontSize: "12px", color: "#666" }} />
         </div>
 
-        <table className="prof-table" style={{ width: "100%", borderCollapse: "collapse", marginBottom: "10px" }}>
+        <table className="prof-table" style={{ width: "100%", borderCollapse: "collapse", marginBottom: "2px" }}>
           <thead>
             <tr>
-              <th style={{ background: "#f8f9fa", border: "1px solid #eee", padding: "8px", fontSize: "11px", textAlign: "center", width: "50px" }}>SR. NO.</th>
-              <th style={{ background: "#f8f9fa", border: "1px solid #eee", padding: "8px", fontSize: "11px", textAlign: "left", width: "200px" }}>ITEM DESCRIPTION</th>
-              <th style={{ background: "#f8f9fa", border: "1px solid #eee", padding: "8px", fontSize: "11px", textAlign: "center", width: "60px" }}>HSN</th>
-              <th style={{ background: "#f8f9fa", border: "1px solid #eee", padding: "8px", fontSize: "11px", textAlign: "center", width: "50px" }}>QTY</th>
-              <th style={{ background: "#f8f9fa", border: "1px solid #eee", padding: "8px", fontSize: "11px", textAlign: "left", width: "80px" }}>RATE/ITEM</th>
-              <th style={{ background: "#f8f9fa", border: "1px solid #eee", padding: "8px", fontSize: "11px", textAlign: "center", width: "60px" }}>GST %</th>
-              <th style={{ background: "#f8f9fa", border: "1px solid #eee", padding: "8px", fontSize: "11px", textAlign: "right", width: "100px" }}>AMOUNT</th>
-              <th className="no-print" style={{ background: "#f8f9fa", border: "1px solid #eee", padding: "8px", fontSize: "11px", textAlign: "center", width: "50px" }}>ACTION</th>
+              <th style={{ background: "#f8f9fa", border: "1px solid #eee", padding: "4px", fontSize: "10px", textAlign: "center", width: "40px" }}>SR. NO.</th>
+              <th style={{ background: "#f8f9fa", border: "1px solid #eee", padding: "4px", fontSize: "10px", textAlign: "left", width: "auto" }}>ITEM DESCRIPTION</th>
+              <th style={{ background: "#f8f9fa", border: "1px solid #eee", padding: "4px", fontSize: "10px", textAlign: "center", width: "55px" }}>HSN</th>
+              <th style={{ background: "#f8f9fa", border: "1px solid #eee", padding: "4px", fontSize: "10px", textAlign: "center", width: "45px" }}>QTY</th>
+              <th style={{ background: "#f8f9fa", border: "1px solid #eee", padding: "4px", fontSize: "10px", textAlign: "left", width: "60px" }}>RATE/ITEM</th>
+              <th style={{ background: "#f8f9fa", border: "1px solid #eee", padding: "4px", fontSize: "10px", textAlign: "center", width: "55px" }}>GST %</th>
+              <th style={{ background: "#f8f9fa", border: "1px solid #eee", padding: "4px", fontSize: "10px", textAlign: "right", width: "85px" }}>AMOUNT</th>
+              <th className="no-print" style={{ background: "#f8f9fa", border: "1px solid #eee", padding: "4px", fontSize: "10px", textAlign: "center", width: "40px" }}>ACTION</th>
             </tr>
           </thead>
           <tbody>
             {invoice.items.map((item, index) => (
               <tr key={index}>
-                <td style={{ border: "1px solid #eee", padding: "8px", textAlign: "center" }}>{index + 1}</td>
-                <td style={{ border: "1px solid #eee", padding: "8px" }}>
-                  <input type="text" name="description" placeholder="Item Name" value={item.description} onChange={(e) => handleItemChange(index, e)} style={{ width: "100%", border: "none", fontSize: "13px", fontWeight: "bold", outline: "none" }} />
+                <td style={{ border: "1px solid #eee", padding: "4px", textAlign: "center", fontSize: "12px" }}>{index + 1}</td>
+                <td style={{ border: "1px solid #eee", padding: "4px", verticalAlign: "top" }}>
+                  <textarea name="description" placeholder="Item Name" value={item.description} onChange={(e) => handleItemChange(index, e)} rows="1" style={{ width: "100%", border: "none", fontSize: "12px", fontWeight: "bold", outline: "none", resize: "vertical", fontFamily: "inherit", minHeight: "25px" }} />
                 </td>
-                <td style={{ border: "1px solid #eee", padding: "8px" }}>
+                <td style={{ border: "1px solid #eee", padding: "4px" }}>
                   <input type="text" name="hsn" placeholder="HSN" value={item.hsn} onChange={(e) => handleItemChange(index, e)} style={{ width: "100%", border: "none", fontSize: "12px", textAlign: "center", outline: "none" }} />
                 </td>
-                <td style={{ border: "1px solid #eee", padding: "8px" }}>
-                  <input type="number" name="qty" value={item.qty} onChange={(e) => handleItemChange(index, e)} style={{ width: "100%", border: "none", fontSize: "13px", textAlign: "center", outline: "none" }} />
+                <td style={{ border: "1px solid #eee", padding: "4px" }}>
+                  <input type="number" name="qty" value={item.qty} onChange={(e) => handleItemChange(index, e)} style={{ width: "100%", border: "none", fontSize: "12px", textAlign: "center", outline: "none" }} />
                 </td>
-                <td style={{ border: "1px solid #eee", padding: "8px" }}>
-                  <input type="number" name="rate" value={item.rate} onChange={(e) => handleItemChange(index, e)} style={{ width: "100%", border: "none", fontSize: "13px", outline: "none" }} />
+                <td style={{ border: "1px solid #eee", padding: "4px" }}>
+                  <input type="number" name="rate" value={item.rate} onChange={(e) => handleItemChange(index, e)} style={{ width: "100%", border: "none", fontSize: "12px", outline: "none" }} />
                 </td>
-                <td style={{ border: "1px solid #eee", padding: "8px" }}>
-                  <select name="gstRate" value={item.gstRate || 18} onChange={(e) => handleItemChange(index, e)} style={{ border: "1px solid #ddd", fontSize: "12px", outline: "none", padding: "2px" }}>
+                <td style={{ border: "1px solid #eee", padding: "4px" }}>
+                  <select name="gstRate" value={item.gstRate || 18} onChange={(e) => handleItemChange(index, e)} style={{ border: "1px solid #ddd", fontSize: "11px", outline: "none", padding: "2px" }}>
                     <option value={5}>5%</option>
                     <option value={12}>12%</option>
                     <option value={18}>18%</option>
                     <option value={28}>28%</option>
                   </select>
                 </td>
-                <td style={{ border: "1px solid #eee", padding: "8px", textAlign: "right", fontSize: "13px", fontWeight: "bold" }}>
+                <td style={{ border: "1px solid #eee", padding: "4px", textAlign: "right", fontSize: "12px", fontWeight: "bold" }}>
                   {Number(item.amount).toFixed(2)}
                 </td>
-                <td className="no-print" style={{ border: "1px solid #eee", padding: "8px", textAlign: "center" }}>
+                <td className="no-print" style={{ border: "1px solid #eee", padding: "4px", textAlign: "center" }}>
                    <button onClick={() => removeItem(index)} style={{ background: "#fff", border: "1px solid #ddd", color: "#e74c3c", padding: "2px 6px", borderRadius: "50%", cursor: "pointer" }}>×</button>
                 </td>
               </tr>
@@ -286,35 +316,38 @@ function InvoiceForm() {
           </tbody>
         </table>
 
-        <div className="no-print" style={{ textAlign: "left", marginBottom: "20px" }}>
-          <button onClick={addRow} style={{ background: "#f39c12", color: "white", padding: "5px 15px", border: "none", borderRadius: "4px", cursor: "pointer", fontSize: "12px", fontWeight: "bold" }}>+ Add Item</button>
+        {/* Spacer to dynamically push the footer cleanly to the bottom of the A4 page */}
+        <div style={{ flexGrow: 1 }}></div>
+
+        <div className="no-print" style={{ textAlign: "left", marginBottom: "5px", marginTop: "10px" }}>
+          <button onClick={addRow} style={{ background: "#f39c12", color: "white", padding: "5px 10px", border: "none", borderRadius: "4px", cursor: "pointer", fontSize: "11px", fontWeight: "bold" }}>+ Add Item</button>
           <div style={{ clear: "both" }}></div>
         </div>
 
-        <div className="total-flex" style={{ display: "flex", justifyContent: "space-between", borderTop: "1px solid #000", paddingTop: "10px" }}>
+        <div className="total-flex" style={{ display: "flex", justifyContent: "space-between", borderTop: "1px solid #000", paddingTop: "5px" }}>
           <div className="words-block" style={{ width: "60%" }}>
-             <div style={{ color: "#888", fontSize: "11px", marginBottom: "4px" }}>Total Amount (in words):</div>
-             <div style={{ fontWeight: "bold", fontSize: "13px" }}>{numberToWords(grandTotal)}</div>
+             <div style={{ color: "#888", fontSize: "11px", marginBottom: "2px" }}>Total Amount (in words):</div>
+             <div style={{ fontWeight: "bold", fontSize: "12px" }}>{numberToWords(grandTotal)}</div>
           </div>
           <div className="totals-block" style={{ width: "35%" }}>
-             <div style={{ display: "flex", justifyContent: "space-between", fontSize: "13px", marginBottom: "5px" }}>
+             <div style={{ display: "flex", justifyContent: "space-between", fontSize: "12px", marginBottom: "2px" }}>
                <span>Taxable Amount</span>
                <span style={{ fontWeight: "bold" }}>₹{total.toFixed(2)}</span>
              </div>
-             <div style={{ display: "flex", justifyContent: "space-between", fontSize: "13px", marginBottom: "5px" }}>
+             <div style={{ display: "flex", justifyContent: "space-between", fontSize: "12px", marginBottom: "2px" }}>
                <span>Total GST</span>
                <span style={{ fontWeight: "bold" }}>₹{(cgst + sgst).toFixed(2)}</span>
              </div>
-             <div style={{ display: "flex", justifyContent: "space-between", fontSize: "18px", fontWeight: "800", borderTop: "2px solid #000", marginTop: "10px", paddingTop: "10px" }}>
+             <div style={{ display: "flex", justifyContent: "space-between", fontSize: "14px", fontWeight: "800", borderTop: "2px solid #000", marginTop: "4px", paddingTop: "4px" }}>
                <span>Total</span>
                <span>₹{grandTotal.toFixed(2)}</span>
              </div>
           </div>
         </div>
 
-        <div className="footer-grid" style={{ display: "flex", justifyContent: "space-between", marginTop: "20px" }}>
-           <div className="bank-info-box" style={{ width: "40%", fontSize: "11px", color: "#555" }}>
-             <div style={{ fontWeight: "bold", color: "#000", marginBottom: "5px" }}>BANK DETAILS:</div>
+        <div className="footer-grid" style={{ display: "flex", justifyContent: "space-between", marginTop: "10px" }}>
+           <div className="bank-info-box" style={{ width: "40%", fontSize: "10px", color: "#555", lineHeight: "1.2" }}>
+             <div style={{ fontWeight: "bold", color: "#000", marginBottom: "2px" }}>BANK DETAILS:</div>
              <b>Bank:</b> HDFC BANK<br />
              <b>A/C #:</b> 50200095196440 (Current)<br />
              <b>IFSC:</b> HDFC0005383<br />
@@ -322,17 +355,17 @@ function InvoiceForm() {
            </div>
            
            <div className="sig-box" style={{ width: "35%", textAlign: "right" }}>
-              <div style={{ fontWeight: "bold", fontSize: "13px" }}>For SHRI G ENTERPRISES</div>
-              <div style={{ marginTop: "25px", borderTop: "1px solid #000", display: "inline-block", minWidth: "150px", textAlign: "center", paddingTop: "5px", fontSize: "12px" }}>
+              <div style={{ fontWeight: "bold", fontSize: "11px" }}>For SHRI G ENTERPRISES</div>
+              <div style={{ marginTop: "15px", borderTop: "1px solid #000", display: "inline-block", minWidth: "150px", textAlign: "center", paddingTop: "2px", fontSize: "10px" }}>
                 Authorized Signatory
               </div>
            </div>
         </div>
 
-        <div className="terms" style={{ marginTop: "20px", fontSize: "10px", color: "#777" }}>
-          <b>Notes:</b> Thank you for your Business!<br /><br />
+        <div className="terms" style={{ marginTop: "10px", fontSize: "9px", color: "#777", lineHeight: "1.2" }}>
+          <b>Notes:</b> Thank you for your Business!<br />
           <b>Terms and Conditions:</b>
-          <ul style={{ margin: "5px 0 0 15px", padding: 0 }}>
+          <ul style={{ margin: "2px 0 0 15px", padding: 0 }}>
             <li>Goods once sold cannot be taken back or exchanged.</li>
             <li>Interest @24% p.a. will be charged for uncleared bills beyond 15 days.</li>
             <li>Subject to Pune Jurisdiction.</li>
@@ -340,7 +373,7 @@ function InvoiceForm() {
         </div>
         
         {/* Footer Disclaimer */}
-        <p className="footer-disclaimer">This is a digitally signed document generated by Vaishanvi Enterprises (+91 9767216218) Billing System.</p>
+        <p className="footer-disclaimer" style={{ margin: "5px 0 0 0", fontSize: "8px", textAlign: "center", color: "#888" }}>This is a digitally signed document generated by Vaishanvi Enterprises (+91 9767216218) Billing System.</p>
       </div>
     </div>
   );
