@@ -262,7 +262,7 @@ textarea {
   gap: 15px;
   align-items: center;
 }
-.header .logo { width: 80px; height: 80px; object-fit: contain; }
+.header .logo { width: 80px; height: 80px; object-fit: contain;}
 .header .header-text { text-align: center; flex: 1; }
 
 .invoice-details-section { margin-top: 12px; }
