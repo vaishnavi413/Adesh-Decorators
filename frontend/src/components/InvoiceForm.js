@@ -6,7 +6,7 @@ import { useNavigate, Link, useParams } from "react-router-dom";
 import "./InvoiceForm.css";
 import logo from "../assets/logo.jpeg";
 
-const BACKEND_URL = "http://localhost:5000";
+import { BACKEND_URL } from "../config";
 
 function InvoiceForm() {
   const invoiceRef = useRef(null);

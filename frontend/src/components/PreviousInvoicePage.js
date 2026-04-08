@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import "./PreviousInvoicePage.css"; 
+import { BACKEND_URL } from "../config";
 
 function PreviousInvoicePage() {
   const [invoices, setInvoices] = useState([]);
@@ -10,7 +11,7 @@ function PreviousInvoicePage() {
   useEffect(() => {
     const fetchInvoices = async () => {
       try {
-        const res = await axios.get("http://localhost:5000/api/invoices"); 
+        const res = await axios.get(`${BACKEND_URL}/api/invoices`); 
         setInvoices(res.data);
       } catch (err) {
         console.error("Error fetching invoices:", err);
@@ -30,7 +31,7 @@ function PreviousInvoicePage() {
   const handleDelete = async (id) => {
     if (window.confirm("Are you sure you want to delete this invoice?")) {
       try {
-        await axios.delete(`http://localhost:5000/api/invoices/${id}`);
+        await axios.delete(`${BACKEND_URL}/api/invoices/${id}`);
         setInvoices(invoices.filter((inv) => inv._id !== id));
         alert("Invoice deleted successfully");
       } catch (err) {

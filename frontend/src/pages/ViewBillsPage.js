@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import "./ViewBillsPage.css";
+import { BACKEND_URL } from "../config";
 
 function ViewBillsPage() {
   const [invoices, setInvoices] = useState([]);
@@ -8,14 +9,14 @@ function ViewBillsPage() {
 
   useEffect(() => {
     const fetchInvoices = async () => {
-      const res = await axios.get("http://localhost:5000/api/invoices");
+      const res = await axios.get(`${BACKEND_URL}/api/invoices`);
       setInvoices(res.data);
     };
     fetchInvoices();
   }, []);
 
   const viewInvoice = async (id) => {
-    const res = await axios.get(`http://localhost:5000/api/invoices/${id}`);
+    const res = await axios.get(`${BACKEND_URL}/api/invoices/${id}`);
     setSelectedInvoice(res.data);
   };
 

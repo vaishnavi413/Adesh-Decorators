@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import "./InvoiceStyle.css";
+import { BACKEND_URL } from "../config";
 
 const CreateInvoice = () => {
   const [invoiceData, setInvoiceData] = useState({
@@ -35,7 +36,7 @@ const CreateInvoice = () => {
     const grandTotal = total + cgst + sgst;
 
     const dataToSend = { ...invoiceData, total, cgst, sgst, grandTotal };
-    await axios.post("http://localhost:5000/api/invoices", dataToSend);
+    await axios.post(`${BACKEND_URL}/api/invoices`, dataToSend);
     alert("Invoice Saved Successfully!");
   };
 

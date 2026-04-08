@@ -5,6 +5,7 @@ import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 import logo from "../assets/logo.jpeg";
 import "../components/AmazonInvoice.css"; 
+import { BACKEND_URL } from "../config";
 
 export default function InvoiceView() {
   const { id } = useParams();
@@ -14,7 +15,7 @@ export default function InvoiceView() {
   useEffect(() => {
     const load = async () => {
       try {
-        const res = await axios.get(`http://localhost:5000/api/invoices/${id}`);
+        const res = await axios.get(`${BACKEND_URL}/api/invoices/${id}`);
         setInv(res.data);
       } catch (err) { console.error(err); }
     };
